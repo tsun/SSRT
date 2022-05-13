@@ -337,7 +337,7 @@ class VT(VisionTransformer):
 
 
 class ViTNet(nn.Module):
-    def __init__(self, base_net='vit_base_patch16_224', use_bottleneck=True, bottleneck_dim=1024, class_num=31, args=None):
+    def __init__(self, base_net='vit_base_patch16_224', use_bottleneck=True, bottleneck_dim=1024, width=1024, class_num=31, args=None):
         super(ViTNet, self).__init__()
 
         self.base_network = vit_model[base_net](pretrained=True, args=args, VisionTransformerModule=VT)
