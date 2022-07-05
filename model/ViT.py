@@ -202,6 +202,7 @@ class VisionTransformer(nn.Module):
         self.norm = norm_layer(embed_dim)
 
         # Classifier head(s)
+        self.pre_logits = nn.Identity()
         self.head = nn.Linear(self.num_features, num_classes) if num_classes > 0 else nn.Identity()
         self.head_dist = None
         if distilled:
@@ -310,6 +311,7 @@ class VT(VisionTransformer):
             for i in range(depth)])
         self.norm = norm_layer(embed_dim)
 
+        self.pre_logits = nn.Identity()
         self.head = nn.Linear(self.num_features, num_classes) if num_classes > 0 else nn.Identity()
         if distilled:
             self.head_dist = nn.Linear(self.embed_dim, self.num_classes) if num_classes > 0 else nn.Identity()

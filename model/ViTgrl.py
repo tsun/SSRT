@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from model.ViT import VisionTransformer as VT, vit_model
+from model.ViT import VT, vit_model
 from model.grl import WarmStartGradientReverseLayer
 
 
@@ -57,7 +57,7 @@ class ViTgrlNet(nn.Module):
 
 class ViTgrl(object):
     def __init__(self, base_net='vit_base_patch16_224', bottleneck_dim=1024, class_num=31, use_gpu=True, args=None):
-        self.c_net = ViTgrlNet(base_net, args.use_bottleneck, bottleneck_dim, class_num, args)
+        self.c_net = ViTgrlNet(base_net, args.use_bottleneck, bottleneck_dim, bottleneck_dim, class_num, args)
         self.use_gpu = use_gpu
         self.is_train = False
         self.iter_num = 0
@@ -76,7 +76,7 @@ class ViTgrl(object):
         inputs = torch.cat((inputs_source, inputs_target))
         outputs, outputs_dc = self.c_net(inputs)
 
-        classifier_loss = nn.CrossEntropyLoss()(outputs.narrow(0, 0, labels_source.size(0)), labels_source)
+        classification_loss = nn.CrossEntropyLoss()(outputs.narrow(0, 0, labels_source.size(0)), labels_source)
 
         domain_loss = 0.
         if args.domain_loss_weight > 0:
@@ -88,11 +88,11 @@ class ViTgrl(object):
 
         self.iter_num += 1
 
-        total_loss = classifier_loss * args.classifier_loss_weight + domain_loss * args.domain_loss_weight
+        total_loss = classification_loss * args.classification_loss_weight + domain_loss * args.domain_loss_weight
 
         if args.use_tensorboard:
             all_losses = {}
-            all_losses.update({'classifier_loss': classifier_loss})
+            all_losses.update({'classification_loss': classification_loss})
             all_losses.update({'domain_loss': domain_loss})
 
             for key, value in all_losses.items():
